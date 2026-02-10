@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/AuthContext';
 import { authService } from '@/lib/auth';
 import PrivateRoute from '@/components/PrivateRoute';
+import { User, Briefcase } from 'lucide-react';
 
 function Profile() {
   const { user, updateUser } = useAuth();
@@ -70,11 +71,18 @@ function Profile() {
 
           <div className="mb-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Account Role</p>
-                <p className="text-lg font-semibold text-gray-900">
-                  {user?.role === 'creator' ? '👨‍🏫 Creator' : '👤 User'}
-                </p>
+              <div className="flex items-center gap-3">
+                {user?.role === 'creator' ? (
+                  <Briefcase className="w-6 h-6 text-blue-600" />
+                ) : (
+                  <User className="w-6 h-6 text-blue-600" />
+                )}
+                <div>
+                  <p className="text-sm text-gray-600">Account Role</p>
+                  <p className="text-lg font-semibold text-gray-900">
+                    {user?.role === 'creator' ? 'Creator' : 'User'}
+                  </p>
+                </div>
               </div>
               <span className="px-4 py-2 bg-blue-600 text-white rounded-full text-sm font-semibold">
                 {user?.role?.toUpperCase()}

@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../lib/AuthContext';
 import Toaster from '../../components/ui/toaster';
+import { Eye, EyeOff, Loader } from 'lucide-react';
 
 export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -143,14 +144,9 @@ export default function LoginPage() {
                     className="absolute right-4 top-3.5 text-gray-500 hover:text-gray-700 transition-colors"
                   >
                     {showPassword ? (
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                        <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
-                      </svg>
+                      <Eye className="w-5 h-5" />
                     ) : (
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-14-14zM2 10a8 8 0 0113.384 5.684A1 1 0 0114.6 15.16A6 6 0 102 10a1 1 0 001 1.88c1.472-2.193 3.805-3.74 6.515-4.26A1 1 0 108 10a4 4 0 000 8 1 1 0 001.882.114A8 8 0 012 10z" clipRule="evenodd" />
-                      </svg>
+                      <EyeOff className="w-5 h-5" />
                     )}
                   </button>
                 </div>
@@ -178,10 +174,7 @@ export default function LoginPage() {
               >
                 {loading ? (
                   <span className="flex items-center justify-center gap-2">
-                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
+                    <Loader className="animate-spin h-5 w-5" />
                     Loading...
                   </span>
                 ) : (isLogin ? 'Sign In' : 'Create Account')}
