@@ -14,48 +14,68 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-blue-600 shadow-lg">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex items-center">
-            <Link href="/" className="text-white text-xl font-bold">
-              Sessions Marketplace
-            </Link>
-          </div>
+    <nav className="bg-white shadow-md border-b border-gray-100">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="flex justify-between items-center h-20">
+          {/* Logo */}
+          <Link href="/" className="text-2xl font-bold text-blue-600 flex items-center hover:text-blue-700 transition-colors">
+            <span className="text-3xl mr-2">📚</span>
+            Sessions
+          </Link>
 
-          <div className="flex items-center space-x-4">
-            <Link href="/" className="text-white hover:text-blue-200">
+          {/* Navigation Links */}
+          <div className="flex items-center gap-8">
+            <Link href="/" className="text-gray-700 font-medium hover:text-blue-600 transition-colors">
               Home
             </Link>
 
             {user ? (
               <>
                 {user.role === 'creator' ? (
-                  <Link href="/creator-dashboard" className="text-white hover:text-blue-200">
-                    Creator Dashboard
+                  <Link href="/creator-dashboard" className="text-gray-700 font-medium hover:text-blue-600 transition-colors">
+                    My Sessions
                   </Link>
                 ) : (
-                  <Link href="/dashboard" className="text-white hover:text-blue-200">
-                    My Dashboard
+                  <Link href="/dashboard" className="text-gray-700 font-medium hover:text-blue-600 transition-colors">
+                    My Bookings
                   </Link>
                 )}
-                <Link href="/profile" className="text-white hover:text-blue-200">
+                <Link href="/profile" className="text-gray-700 font-medium hover:text-blue-600 transition-colors">
                   Profile
                 </Link>
+              </>
+            ) : null}
+          </div>
+
+          {/* Right Side Actions */}
+          <div className="flex items-center gap-4">
+            {user ? (
+              <>
+                <span className="text-sm text-gray-600 px-3 py-2">
+                  {user.first_name || user.username}
+                </span>
                 <button
                   onClick={handleLogout}
-                  className="bg-white text-blue-600 px-4 py-2 rounded hover:bg-blue-50"
+                  className="px-6 py-2.5 bg-white text-gray-700 border-2 border-gray-300 font-semibold rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all"
                 >
                   Logout
                 </button>
               </>
             ) : (
-              <Link
-                href="/login"
-                className="bg-white text-blue-600 px-4 py-2 rounded hover:bg-blue-50"
-              >
-                Login
-              </Link>
+              <>
+                <Link
+                  href="/login"
+                  className="px-6 py-2.5 text-gray-700 font-semibold hover:text-blue-600 transition-colors"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/login"
+                  className="px-6 py-2.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all"
+                >
+                  Get Started
+                </Link>
+              </>
             )}
           </div>
         </div>
