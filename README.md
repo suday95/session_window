@@ -1,4 +1,4 @@
-# 🎓 Sessions Marketplace - Complete Guide
+# Sessions Marketplace - Complete Guide
 
 A professional full-stack web application for booking and managing educational sessions. Built with modern technologies: Next.js, Django, PostgreSQL, and Docker.
 
@@ -10,7 +10,7 @@ A professional full-stack web application for booking and managing educational s
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
 1. [Overview](#-overview)
 2. [Features](#-features)
@@ -30,85 +30,85 @@ A professional full-stack web application for booking and managing educational s
 
 ---
 
-## 🎯 Overview
+## Overview
 
 **Sessions Marketplace** is an educational platform where:
-- 👥 **Users** browse and book educational sessions from creators
-- 👨‍🏫 **Creators** create, manage, and monetize their educational sessions
-- 🔐 Secure authentication with JWT and OAuth support
-- 💳 Payment tracking and booking management
-- 📊 Dual dashboards for users and creators
+- **Users** browse and book educational sessions from creators
+- **Creators** create, manage, and monetize their educational sessions
+- Secure authentication with JWT and OAuth support
+- Payment tracking and booking management
+- Dual dashboards for users and creators
 
 **Perfect for**: Online tutoring platforms, skill-sharing marketplaces, expert consultation services, and educational content delivery.
 
 ---
 
-## ✨ Features
+## Features
 
 ### Core Features
 
-- 🔐 **Dual Authentication**
+- **Dual Authentication**
   - Email/Password registration and login
   - OAuth integration (Google & GitHub)
   - JWT token-based security with auto-refresh
   - Secure session management
 
-- 👥 **Role-Based Access Control**
+- **Role-Based Access Control**
   - User role: Browse and book sessions
   - Creator role: Create and manage sessions
   - Admin role: Full system management
   - Distinct interfaces for each role
 
-- 📚 **Session Management**
+- **Session Management**
   - Create, read, update, delete sessions
   - Session filtering and search
   - Max participant limits
   - Session status tracking (active, inactive, completed)
 
-- 📅 **Booking System**
+- **Booking System**
   - Complete booking workflow
   - Date/time scheduling
   - Booking status tracking (confirmed, cancelled)
   - Revenue tracking for creators
 
-- 👤 **User Profiles**
+- **User Profiles**
   - Update personal information
   - Avatar/profile picture support
   - Profile completion tracking
   - Account preferences
 
-- 📊 **Dual Dashboards**
+- **Dual Dashboards**
   - User Dashboard: View active bookings, upcoming sessions
   - Creator Dashboard: Manage sessions, view bookings, track revenue
   - Real-time statistics and analytics
 
 ### Technical Features
 
-- 🐳 **Docker & Docker Compose**
+- **Docker & Docker Compose**
   - One-command deployment
   - Multi-container orchestration
   - Automatic service restart
   - Volume management for persistence
 
-- 🔄 **RESTful API**
+- **RESTful API**
   - Clean, well-documented endpoints
   - Django REST Framework
   - Pagination and filtering
   - Comprehensive error handling
 
-- 🎨 **Modern UI/UX**
+- **Modern UI/UX**
   - Responsive design with Tailwind CSS
   - Mobile-first approach
   - Professional styling
   - Smooth animations and transitions
 
-- 🚀 **Production Ready**
+- **Production Ready**
   - Nginx reverse proxy
   - PostgreSQL database
   - Environment-based configuration
   - Security best practices
 
-- 🔒 **Security**
+-  **Security**
   - CORS configuration
   - SQL injection prevention
   - CSRF protection
@@ -148,7 +148,7 @@ A professional full-stack web application for booking and managing educational s
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```
 sessions-marketplace/
@@ -216,17 +216,17 @@ sessions-marketplace/
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
-✅ **Required**:
+**Required**:
 - Docker Desktop ([Download](https://www.docker.com/products/docker-desktop))
 - Git
 - 8GB RAM minimum
 - Ports available: 80, 3000, 8000, 5432
 
-✅ **Optional**:
+**Optional**:
 - Python 3.11+ (for local development)
 - Node.js 18+ (for local frontend development)
 - PostgreSQL client (psql)
@@ -248,7 +248,7 @@ docker-compose up --build
 docker-compose exec backend python manage.py createsuperuser
 ```
 
-**🎉 That's it!** Your application is now running at:
+** That's it!** Your application is now running at:
 
 | Service | URL |
 |---------|-----|
@@ -299,7 +299,7 @@ npm run dev
 
 ---
 
-## 🔐 Environment Setup
+## Environment Setup
 
 ### .env Configuration
 
@@ -344,7 +344,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8000/api
 
 ### Security Notes
 
-⚠️ **Important**:
+**Important**:
 - Never commit `.env` to version control
 - Change `SECRET_KEY` in production
 - Use strong `POSTGRES_PASSWORD`
@@ -353,21 +353,21 @@ NEXT_PUBLIC_API_URL=http://localhost:8000/api
 
 ---
 
-## 🔑 OAuth Configuration (Optional)
+## OAuth Configuration (Optional)
 
 **OAuth is fully optional!** The app works perfectly with email/password authentication. OAuth adds social login convenience.
 
 ### Why OAuth is Optional
 
-✅ Email/password authentication works immediately (no setup needed)
-✅ OAuth demonstrates production-ready patterns
-✅ Setup takes ~5 minutes per provider
-✅ Useful for real-world applications
+Email/password authentication works immediately (no setup needed)
+OAuth demonstrates production-ready patterns
+Setup takes ~5 minutes per provider
+Useful for real-world applications
 
 ### Google OAuth Setup
 
 <details>
-<summary><b>👉 Click to expand Google OAuth instructions</b></summary>
+<summary><b> Click to expand Google OAuth instructions</b></summary>
 
 #### Step 1: Create Google Cloud Project
 
@@ -419,7 +419,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8000/api
    - **Sites**: Select `example.com` → Click arrow to move to "Chosen sites"
 5. Click **"Save"**
 
-✅ **Google OAuth is ready!**
+ **Google OAuth is ready!**
 
 </details>
 
@@ -460,7 +460,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8000/api
    - **Sites**: Select `example.com` → Move to "Chosen sites"
 5. Click **"Save"**
 
-✅ **GitHub OAuth is ready!**
+ **GitHub OAuth is ready!**
 
 </details>
 
@@ -730,7 +730,7 @@ Response: 200 OK
 
 ---
 
-## 🧪 API Testing Guide
+##  API Testing Guide
 
 ### Using Postman
 
@@ -1067,7 +1067,7 @@ Step 5: Verify Changes
 
 ---
 
-## 💻 Development Guide
+## Development Guide
 
 ### Setup Development Environment
 
@@ -1241,9 +1241,9 @@ export const getSession = async (id) => {
 
 ---
 
-## ✅ Implementation Checklist
+##  Implementation Checklist
 
-### Phase 1: Setup ✅
+### Phase 1: Setup 
 - [x] Initialize project structure
 - [x] Setup Docker & Docker Compose
 - [x] Configure Django + DRF
@@ -1251,7 +1251,7 @@ export const getSession = async (id) => {
 - [x] Configure Nginx reverse proxy
 - [x] Setup PostgreSQL database
 
-### Phase 2: Authentication ✅
+### Phase 2: Authentication 
 - [x] Implement user registration
 - [x] Implement email/password login
 - [x] Setup JWT authentication
@@ -1260,7 +1260,7 @@ export const getSession = async (id) => {
 - [x] Add OAuth integration (Google/GitHub)
 - [x] Create PrivateRoute component
 
-### Phase 3: Core Features ✅
+### Phase 3: Core Features 
 - [x] Create User model (with roles)
 - [x] Create Session model
 - [x] Create Booking model
@@ -1269,7 +1269,7 @@ export const getSession = async (id) => {
 - [x] Add filtering and pagination
 - [x] Implement session search
 
-### Phase 4: Frontend Pages ✅
+### Phase 4: Frontend Pages 
 - [x] Home page with session listing
 - [x] Session detail page
 - [x] Login/Register page
@@ -1278,7 +1278,7 @@ export const getSession = async (id) => {
 - [x] Profile page
 - [x] Responsive navbar
 
-### Phase 5: Advanced Features ✅
+### Phase 5: Advanced Features 
 - [x] Booking status tracking
 - [x] Revenue calculation
 - [x] Session status filtering
@@ -1287,7 +1287,7 @@ export const getSession = async (id) => {
 - [x] Create session functionality
 - [x] Edit/Delete sessions (creators only)
 
-### Phase 6: Polish & Deployment ✅
+### Phase 6: Polish & Deployment 
 - [x] Responsive design (mobile-first)
 - [x] Error handling
 - [x] Loading states
@@ -1297,7 +1297,7 @@ export const getSession = async (id) => {
 - [x] CORS configuration
 - [x] Docker production build
 
-### Phase 7: Testing & Documentation ✅
+### Phase 7: Testing & Documentation 
 - [x] API documentation
 - [x] Testing guide
 - [x] Demo scenarios
@@ -1318,7 +1318,7 @@ export const getSession = async (id) => {
 
 ---
 
-## 🐛 Troubleshooting
+##  Troubleshooting
 
 ### Port Already in Use
 
@@ -1468,7 +1468,7 @@ docker-compose up --build
 
 ---
 
-## 🚀 Deployment
+##  Deployment
 
 ### Pre-Deployment Checklist
 
@@ -1694,7 +1694,7 @@ npm test
 
 ---
 
-## 📄 Additional Files
+##  Additional Files
 
 ### .env.example
 
@@ -1752,7 +1752,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8000/api
 
 ---
 
-## ✨ Summary
+## Summary
 
 **Sessions Marketplace** is a complete, production-ready full-stack application featuring:
 
@@ -1782,7 +1782,7 @@ Built for educational purposes as part of internship assignment.
 
 ---
 
-## 👨‍💻 Author
+## Author
 
 Created with ❤️ using **Next.js, Django, PostgreSQL, and Docker**
 
