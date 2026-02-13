@@ -27,7 +27,7 @@ class Session(models.Model):
     end_time = models.DateTimeField(null=True, blank=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='draft')
     image = models.ImageField(upload_to=session_image_path, blank=True, null=True)
-    image_url_external = models.URLField(blank=True, null=True, help_text="External image URL (alternative to upload)")
+    image_url_external = models.URLField(max_length=2000, blank=True, null=True, help_text="External image URL (alternative to upload)")
     current_bookings = models.IntegerField(default=0, help_text="Current number of bookings")
     created_at = models.DateTimeField(auto_now_add=True)
     

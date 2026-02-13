@@ -134,7 +134,18 @@ docker-compose up --build
 
 Wait for all services to start (first run takes 2-3 minutes).
 
-### Step 4: Create Admin User
+### Step 4: Initialize MinIO Storage
+
+Set up the storage bucket for session images:
+
+```bash
+# Create MinIO bucket and set public access
+docker-compose exec minio mc alias set local http://localhost:9000 minioadmin minioadmin123
+docker-compose exec minio mc mb local/sessions-media --ignore-existing
+docker-compose exec minio mc anonymous set public local/sessions-media
+```
+
+### Step 5: Create Admin User
 
 Open a new terminal:
 
@@ -144,13 +155,14 @@ docker-compose exec backend python manage.py createsuperuser
 
 Follow the prompts to create an admin account.
 
-### Step 5: Access the Application
+### Step 6: Access the Application
 
 | Service | URL |
 |---------|-----|
 | Frontend | http://localhost:3000 |
 | Backend API | http://localhost:8000/api |
 | Admin Panel | http://localhost:8000/admin |
+| MinIO Console | http://localhost:9001 |
 
 ---
 
