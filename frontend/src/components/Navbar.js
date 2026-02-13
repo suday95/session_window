@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useAuth } from '@/lib/AuthContext';
+import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 
 export default function Navbar() {
@@ -12,6 +12,20 @@ export default function Navbar() {
     logout();
     router.push('/login');
   };
+  // Get user initials for fallback avatar
+  const getInitials = () => {
+    if (user?.first_name) {
+      return user.first_name.charAt(0).toUpperCase();
+    }
+    if (user?.username) {
+      return user.username.charAt(0).toUpperCase();
+    }
+    if (user?.email) {
+      return user.email.charAt(0).toUpperCase();
+    }
+    return 'U';
+  };
+
 
   return (
     <nav className="bg-white shadow-md border-b border-gray-100">
@@ -51,9 +65,28 @@ export default function Navbar() {
           <div className="flex items-center gap-4">
             {user ? (
               <>
-                <span className="text-sm text-gray-600 px-3 py-2">
-                  {user.first_name || user.username}
-                </span>
+                {/* User Profile Section */}
+                <Link href="/profile" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors">
+                  {user.avatar ? (
+                    <img 
+                      src={user.avatar} 
+                      alt={user.first_name || user.username} 
+                      className="w-10 h-10 rounded-full object-cover border-2 border-blue-500"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-lg">
+                      {getInitials()}
+                    </div>
+                  )}
+                  <div className="hidden md:block">
+                    <p className="text-sm font-semibold text-gray-900">
+                      {user.first_name || user.username || user.email?.split('@')[0]}
+                    </p>
+                    <p className="text-xs text-gray-500 capitalize">
+                      {user.role || 'User'}
+                    </p>
+                  </div>
+                </Link>
                 <button
                   onClick={handleLogout}
                   className="px-6 py-2.5 bg-white text-gray-700 border-2 border-gray-300 font-semibold rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all"

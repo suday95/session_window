@@ -1,9 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/lib/AuthContext';
+import { useAuth } from '@/context/AuthContext';
 import { authService } from '@/lib/auth';
-import PrivateRoute from '@/components/PrivateRoute';
 import { User, Briefcase } from 'lucide-react';
 
 function Profile() {
@@ -189,9 +188,5 @@ function Profile() {
 }
 
 export default function ProfilePage() {
-  return (
-    <PrivateRoute>
-      <Profile />
-    </PrivateRoute>
-  );
+  return <Profile />;
 }

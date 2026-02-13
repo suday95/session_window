@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '../../lib/AuthContext';
-import Toaster from '../../components/ui/toaster';
+import { useAuth } from '@/context/AuthContext';
+import Toaster from '@/components/ui/toaster';
 import { Eye, EyeOff, Loader } from 'lucide-react';
 
 export default function RegisterPage() {

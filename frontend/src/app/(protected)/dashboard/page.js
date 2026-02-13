@@ -3,8 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import api from '@/lib/api';
-import { useAuth } from '@/lib/AuthContext';
-import PrivateRoute from '@/components/PrivateRoute';
+import { useAuth } from '@/context/AuthContext';
 
 function UserDashboard() {
   const [bookings, setBookings] = useState([]);
@@ -17,7 +16,7 @@ function UserDashboard() {
 
   const fetchBookings = async () => {
     try {
-      const response = await api.get('/bookings/my_bookings/');
+      const response = await api.get('/bookings/');
       const data = response.data.results || response.data;
       setBookings(Array.isArray(data) ? data : []);
     } catch (error) {
@@ -28,13 +27,14 @@ function UserDashboard() {
   };
 
   const cancelBooking = async (id) => {
-    if (!window.confirm('Are you sure you want to cancel this booking?')) return;
+    if (!window.confirm('Are you sure you want to cancel this booking? This action cannot be undone.')) return;
 
     try {
       await api.patch(`/bookings/${id}/`, { status: 'cancelled' });
-      fetchBookings();
+      fetchBookings(); // Refresh the list
       alert('Booking cancelled successfully');
     } catch (error) {
+      console.error('Error cancelling booking:', error);
       alert('Failed to cancel booking');
     }
   };
@@ -177,9 +177,5 @@ function UserDashboard() {
 }
 
 export default function DashboardPage() {
-  return (
-    <PrivateRoute requiredRole="user">
-      <UserDashboard />
-    </PrivateRoute>
-  );
+  return <UserDashboard />;
 }

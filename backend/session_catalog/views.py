@@ -6,7 +6,8 @@ class IsCreatorOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.method in permissions.SAFE_METHODS:
             return True
-        return request.user.is_authenticated and request.user.role == 'creator'
+        # Fix: Check for both uppercase and lowercase role values
+        return request.user.is_authenticated and request.user.role.upper() == 'CREATOR'
     
     def has_object_permission(self, request, view, obj):
         if request.method in permissions.SAFE_METHODS:
@@ -14,7 +15,7 @@ class IsCreatorOrReadOnly(permissions.BasePermission):
         return obj.creator == request.user
 
 class SessionViewSet(viewsets.ModelViewSet):
-    queryset = Session.objects.filter(status='active')
+    queryset = Session.objects.filter(status='published')
     serializer_class = SessionSerializer
     permission_classes = [IsCreatorOrReadOnly]
     
@@ -22,7 +23,21 @@ class SessionViewSet(viewsets.ModelViewSet):
         serializer.save(creator=self.request.user)
     
     def get_queryset(self):
-        if self.action == 'list' and self.request.user.is_authenticated:
-            if self.request.query_params.get('my_sessions'):
-                return Session.objects.filter(creator=self.request.user)
-        return super().get_queryset()
+        user = self.request.user
+        
+        # For retrieve, update, delete - allow creator to access their own sessions
+        if self.action in ['retrieve', 'update', 'partial_update', 'destroy']:
+            if user.is_authenticated and user.role.upper() == 'CREATOR':
+                return Session.objects.filter(creator=user)
+        
+        # For list action
+        if self.action == 'list':
+            if user.is_authenticated:
+                # Creator requesting their own sessions
+                if self.request.query_params.get('my_sessions'):
+                    return Session.objects.filter(creator=user)
+            # Public listing - only published sessions
+            return Session.objects.filter(status='published')
+        
+        # Default: only published sessions
+        return Session.objects.filter(status='published')

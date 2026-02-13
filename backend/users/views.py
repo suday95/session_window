@@ -56,6 +56,9 @@ class GitHubLogin(SocialLoginView):
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
+
+
+#down code is redundant
 def get_tokens(request):
     """Get JWT tokens for authenticated user (from session)"""
     user = request.user

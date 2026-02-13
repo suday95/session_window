@@ -9,13 +9,28 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'email', 'username', 'role', 'avatar', 'first_name', 'last_name']
         read_only_fields = ['id']
+    def to_representation(self, instance):
+        """Return lowercase role to frontend"""
+        data = super().to_representation(instance)
+        data['role'] = data['role'].lower() if data['role'] else None
+        return data
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
+    role = serializers.CharField(required=False)
     
     class Meta:
         model = User
         fields = ['email', 'username', 'password', 'role', 'first_name', 'last_name']
+    def validate_role(self, value):
+        """Accept lowercase and convert to uppercase for storage, strip extra quotes"""
+        if value:
+            # Strip any extra quotes that might be embedded
+            cleaned = value.strip().strip('"').strip("'").lower()
+            if cleaned in ['user', 'creator']:
+                return cleaned.upper()
+            raise serializers.ValidationError(f"'{cleaned}' is not a valid choice. Use 'user' or 'creator'.")
+        return 'USER'
     
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
