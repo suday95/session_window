@@ -88,30 +88,238 @@ sessions-marketplace/
 ## Quick Start
 
 ### Prerequisites
-- Docker Desktop
+- Docker Desktop ([Download](https://www.docker.com/products/docker-desktop))
 - Git
 
-### Installation
+### Step 1: Clone the Repository
 
 ```bash
-# Clone repository
 git clone <repository-url>
 cd sessions-marketplace
+```
 
-# Start all services
+### Step 2: Configure Environment Variables
+
+```bash
+# Copy the example environment file
+cp .env.example .env
+```
+
+Edit `.env` if needed (defaults work for local development):
+
+```env
+# Database
+POSTGRES_DB=sessionsdb
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres123
+POSTGRES_HOST=db
+POSTGRES_PORT=5432
+
+# Django
+SECRET_KEY=django-insecure-CHANGE-THIS-IN-PRODUCTION
+DEBUG=True
+ALLOWED_HOSTS=localhost,127.0.0.1
+
+# Frontend
+NEXT_PUBLIC_API_URL=http://localhost:8000/api
+```
+
+### Step 3: Start the Application
+
+```bash
+# Build and start all containers
 docker-compose up --build
+```
 
-# Create admin user (in another terminal)
+Wait for all services to start (first run takes 2-3 minutes).
+
+### Step 4: Create Admin User
+
+Open a new terminal:
+
+```bash
 docker-compose exec backend python manage.py createsuperuser
 ```
 
-### Access Points
+Follow the prompts to create an admin account.
+
+### Step 5: Access the Application
 
 | Service | URL |
 |---------|-----|
 | Frontend | http://localhost:3000 |
 | Backend API | http://localhost:8000/api |
 | Admin Panel | http://localhost:8000/admin |
+
+---
+
+## Google OAuth Setup (Optional)
+
+OAuth is optional. The app works with email/password authentication by default.
+
+### Step 1: Create Google Cloud Project
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Click "Select a Project" > "New Project"
+3. Name it "Sessions Marketplace" and create
+
+### Step 2: Configure OAuth Consent Screen
+
+1. Go to **APIs & Services** > **OAuth consent screen**
+2. Select "External" and click "Create"
+3. Fill in:
+   - App name: `Sessions Marketplace`
+   - User support email: your email
+   - Developer contact: your email
+4. Click "Save and Continue" through remaining steps
+
+### Step 3: Create OAuth Credentials
+
+1. Go to **APIs & Services** > **Credentials**
+2. Click "Create Credentials" > "OAuth 2.0 Client ID"
+3. Application type: "Web application"
+4. Name: `Sessions Marketplace Web`
+5. Add Authorized redirect URI:
+   ```
+   http://localhost:8000/accounts/google/login/callback/
+   ```
+6. Click "Create" and copy your **Client ID** and **Client Secret**
+
+### Step 4: Add to Django Admin
+
+1. Go to http://localhost:8000/admin
+2. Login with your superuser account
+3. Navigate to **Social applications** > **Add social application**
+4. Fill in:
+   - Provider: `Google`
+   - Name: `Google`
+   - Client id: (paste your Client ID)
+   - Secret key: (paste your Client Secret)
+   - Sites: Move `example.com` to "Chosen sites"
+5. Click "Save"
+
+Google login is now available on the login page.
+
+---
+
+## Demo Flow
+
+### Scenario: Complete User Journey
+
+This walkthrough demonstrates the main features of the application.
+
+#### Part 1: Register as a Creator
+
+1. Open http://localhost:3000
+2. Click "Get Started" or "Sign In"
+3. Click "Create an account"
+4. Fill in the registration form:
+   - Username: `johncreator`
+   - Email: `creator@example.com`
+   - Password: `Test123!`
+   - Account Type: Select "Creator"
+5. Click "Create Account"
+6. Login with your new credentials
+
+#### Part 2: Create a Session (as Creator)
+
+1. After login, click "My Sessions" in the navbar
+2. You'll see the Creator Dashboard
+3. Click "Create New Session"
+4. Fill in session details:
+   - Title: `Introduction to Python`
+   - Description: `Learn Python basics in this hands-on session`
+   - Price: `49.99`
+   - Duration: `60` minutes
+   - Capacity: `10`
+   - Status: `Published`
+5. Click "Create Session"
+6. Your session appears in "My Sessions"
+
+#### Part 3: Register as a User
+
+1. Click "Logout"
+2. Click "Get Started"
+3. Register a new account:
+   - Username: `janeuser`
+   - Email: `user@example.com`
+   - Password: `Test123!`
+   - Account Type: Select "User"
+4. Login with these credentials
+
+#### Part 4: Browse and Book a Session (as User)
+
+1. Go to the home page (click "Sessions" logo)
+2. Browse available sessions
+3. Click on "Introduction to Python"
+4. View session details:
+   - Price, duration, capacity
+   - Creator information
+   - Available spots
+5. Select a date and time for your booking
+6. Click "Book Now"
+7. Complete the simulated payment:
+   - Card details are pre-filled (test mode)
+   - Click "Pay $49.99"
+8. See payment success confirmation
+9. Redirected to your dashboard
+
+#### Part 5: View Booking (as User)
+
+1. Click "My Bookings" in the navbar
+2. See your confirmed booking
+3. View booking details:
+   - Session information
+   - Scheduled date
+   - Payment status
+4. Option to cancel booking if needed
+
+#### Part 6: View Booking (as Creator)
+
+1. Logout and login as `creator@example.com`
+2. Go to "My Sessions" (Creator Dashboard)
+3. See "Recent Bookings" section
+4. View who booked your session:
+   - User information
+   - Booking date
+   - Payment amount
+
+### Quick Test Commands
+
+Create test data via Django shell:
+
+```bash
+docker-compose exec backend python manage.py shell
+```
+
+```python
+from users.models import User
+from session_catalog.models import Session
+
+# Create a creator
+creator = User.objects.create_user(
+    email='creator@test.com',
+    username='testcreator',
+    password='test123',
+    role='CREATOR'
+)
+
+# Create a session
+Session.objects.create(
+    creator=creator,
+    title='Test Session',
+    description='A test session for demo',
+    price=29.99,
+    duration_minutes=45,
+    capacity=5,
+    status='published'
+)
+
+print('Test data created!')
+exit()
+```
+
+---
 
 ## API Endpoints
 
@@ -182,25 +390,6 @@ docker-compose exec backend python manage.py createsuperuser
 | amount | decimal | Amount paid |
 | status | string | pending, confirmed, cancelled |
 | payment_status | string | unpaid, paid, refunded |
-
-## Environment Variables
-
-```env
-# Database
-POSTGRES_DB=sessionsdb
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=postgres123
-POSTGRES_HOST=db
-POSTGRES_PORT=5432
-
-# Django
-SECRET_KEY=your-secret-key
-DEBUG=True
-ALLOWED_HOSTS=localhost,127.0.0.1
-
-# Frontend
-NEXT_PUBLIC_API_URL=http://localhost:8000/api
-```
 
 ## Common Commands
 
