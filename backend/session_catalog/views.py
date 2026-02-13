@@ -1,6 +1,12 @@
 from rest_framework import viewsets, permissions
 from .models import Session
 from .serializers import SessionSerializer
+from rest_framework.throttling import UserRateThrottle
+
+
+
+class SessionThrottle(UserRateThrottle):
+    rate = "50/hour"
 
 class IsCreatorOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
@@ -18,6 +24,7 @@ class SessionViewSet(viewsets.ModelViewSet):
     queryset = Session.objects.filter(status='published')
     serializer_class = SessionSerializer
     permission_classes = [IsCreatorOrReadOnly]
+    throttle_classes = [SessionThrottle]
     
     def perform_create(self, serializer):
         serializer.save(creator=self.request.user)

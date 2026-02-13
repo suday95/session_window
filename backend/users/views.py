@@ -7,14 +7,26 @@ from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from dj_rest_auth.registration.views import SocialLoginView
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.throttling import UserRateThrottle
+
+
+
+class LoginThrottle(UserRateThrottle):
+    rate = "5/min"
+
+class RegisterThrottle(UserRateThrottle):
+    rate = "5/hour"
+
 
 class RegisterView(generics.CreateAPIView):
     permission_classes = [AllowAny]
     serializer_class = RegisterSerializer
+    throttle_classes = [RegisterThrottle]
 
 class LoginView(generics.GenericAPIView):
     permission_classes = [AllowAny]
     serializer_class = LoginSerializer
+    throttle_classes = [LoginThrottle]
     
     def post(self, request):
         serializer = self.get_serializer(data=request.data)

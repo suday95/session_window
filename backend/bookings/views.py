@@ -5,10 +5,16 @@ from django.db import transaction
 from django.db.models import F
 from .models import Booking
 from .serializers import BookingSerializer
+from rest_framework.throttling import UserRateThrottle
+
+
+class BookingThrottle(UserRateThrottle):
+    rate = "10/min"
 
 class BookingViewSet(viewsets.ModelViewSet):
     serializer_class = BookingSerializer
     permission_classes = [permissions.IsAuthenticated]
+    throttle_classes = [BookingThrottle]
     
     def get_queryset(self):
         user = self.request.user

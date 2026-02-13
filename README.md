@@ -189,6 +189,25 @@ OAuth is optional. The app works with email/password authentication by default.
 
 1. Go to http://localhost:8000/admin
 2. Login with your superuser account
+
+   If you haven't created a superuser yet, create one with:
+   ```bash
+   # Interactive (prompts for input)
+   docker-compose exec backend python manage.py createsuperuser
+
+   # Non-interactive (set credentials directly)
+   docker-compose exec backend python manage.py shell -c "
+   from users.models import User
+   User.objects.create_superuser(
+       email='admin@example.com',
+       username='admin',
+       password='admin123',
+       name='Admin'
+   )
+   print('Superuser created!')
+   "
+   ```
+
 3. Navigate to **Social applications** > **Add social application**
 4. Fill in:
    - Provider: `Google`
@@ -464,3 +483,88 @@ docker-compose up --build
 # Rebuild frontend
 docker-compose up -d --build frontend
 ```
+
+---
+
+## Bonus: Rate Limiting / Throttling
+
+API rate limiting is implemented to prevent abuse and protect against brute-force attacks.
+
+### Implementation
+
+| Endpoint | Rate Limit | Purpose |
+|----------|------------|---------|
+| Login | 5 requests/minute | Prevents brute-force password attacks |
+| Register | 5 requests/hour | Prevents mass account creation |
+| General (authenticated) | 1000/hour | Normal API usage |
+| General (anonymous) | 100/hour | Public browsing |
+
+### How It Works
+
+Rate limiting is per IP address. Each IP has its own quota:
+- User A (IP: 1.2.3.4) → 5 login attempts/min
+- User B (IP: 5.6.7.8) → 5 login attempts/min
+
+When limit is exceeded, API returns:
+```json
+{
+  "detail": "Request was throttled. Expected available in 45 seconds."
+}
+```
+
+### Code Implementation
+
+**settings.py** - Global defaults:
+```python
+REST_FRAMEWORK = {
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.UserRateThrottle",
+        "rest_framework.throttling.AnonRateThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        "user": "1000/hour",
+        "anon": "100/hour",
+    }
+}
+```
+
+**users/views.py** - Custom throttles for sensitive endpoints:
+```python
+class LoginThrottle(UserRateThrottle):
+    rate = "5/min"
+
+class RegisterThrottle(UserRateThrottle):
+    rate = "5/hour"
+
+class LoginView(generics.GenericAPIView):
+    throttle_classes = [LoginThrottle]
+    # ...
+
+class RegisterView(generics.CreateAPIView):
+    throttle_classes = [RegisterThrottle]
+    # ...
+```
+
+### Testing Throttle
+
+Run this command to test login throttling (makes 7 rapid requests):
+
+```bash
+for i in {1..7}; do
+  echo "Request $i:"
+  curl -s -X POST http://localhost:8000/api/auth/login/ \
+    -H "Content-Type: application/json" \
+    -d '{"email":"test@test.com","password":"wrong"}' | head -c 100
+  echo ""
+done
+```
+
+**Expected result:**
+- Requests 1-5: Normal response (invalid credentials)
+- Requests 6-7: `"Request was throttled..."`
+
+### Screenshot
+
+![Throttling Demo](docs/images/throttling-demo.png)
+
+*After 5 login attempts, the API blocks further requests for that IP.*
