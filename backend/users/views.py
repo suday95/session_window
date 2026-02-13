@@ -12,10 +12,10 @@ from rest_framework.throttling import UserRateThrottle
 
 
 class LoginThrottle(UserRateThrottle):
-    rate = "5/min"
+    rate = "50/min"
 
 class RegisterThrottle(UserRateThrottle):
-    rate = "5/hour"
+    rate = "500/hour"
 
 
 class RegisterView(generics.CreateAPIView):

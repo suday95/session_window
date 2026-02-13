@@ -68,7 +68,7 @@ export default function Home() {
               )}
               {user && (
                 <Link
-                  href="/dashboard"
+                  href={user.role?.toUpperCase() === 'CREATOR' ? '/creator-dashboard' : '/dashboard'}
                   className="inline-block px-8 py-3.5 bg-white text-blue-600 font-bold rounded-lg hover:bg-blue-50 transition-all shadow-lg"
                 >
                   Go to Dashboard

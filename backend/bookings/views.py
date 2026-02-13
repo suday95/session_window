@@ -9,7 +9,7 @@ from rest_framework.throttling import UserRateThrottle
 
 
 class BookingThrottle(UserRateThrottle):
-    rate = "10/min"
+    rate = "100/min"
 
 class BookingViewSet(viewsets.ModelViewSet):
     serializer_class = BookingSerializer
@@ -36,8 +36,12 @@ class BookingViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         booking = serializer.save(user=self.request.user)
         # Increment current_bookings count atomically
-        booking.session.current_bookings = F('current_bookings') + 1
-        booking.session.save(update_fields=['current_bookings'])
+        session = booking.session
+        session.current_bookings = F('current_bookings') + 1
+        session.save(update_fields=['current_bookings'])
+        # Refresh from database to get the actual integer value (not F() expression)
+        session.refresh_from_db()
+        booking.refresh_from_db()
     
     @transaction.atomic
     def partial_update(self, request, *args, **kwargs):

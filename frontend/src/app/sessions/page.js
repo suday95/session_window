@@ -84,9 +84,9 @@ export default function SessionsCatalog() {
               >
                 {/* Session Image */}
                 <div className="h-48 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center overflow-hidden">
-                  {session.image ? (
+                  {(session.image_url || session.image) ? (
                     <img
-                      src={session.image}
+                      src={session.image_url || session.image}
                       alt={session.title}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                     />

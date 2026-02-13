@@ -19,9 +19,12 @@ function CreatorDashboard() {
     duration_minutes: '',
     price: '',
     capacity: '',
-    image: '',
     status: 'published',
+    image_url_external: '',
   });
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [imageInputType, setImageInputType] = useState('url'); // 'url' or 'upload'
 
   useEffect(() => {
     fetchData();
@@ -47,27 +50,51 @@ function CreatorDashboard() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const payload = {
-        title: formData.title,
-        description: formData.description,
-        duration_minutes: parseInt(formData.duration_minutes),
-        price: parseFloat(formData.price),
-        capacity: parseInt(formData.capacity),
-        status: formData.status,
-      };
+      let response;
       
-      // Only add image if provided
-      if (formData.image) {
-        payload.image = formData.image;
+      if (imageInputType === 'upload' && imageFile) {
+        // Use FormData for file upload
+        const submitData = new FormData();
+        submitData.append('title', formData.title);
+        submitData.append('description', formData.description);
+        submitData.append('duration_minutes', parseInt(formData.duration_minutes));
+        submitData.append('price', parseFloat(formData.price));
+        submitData.append('capacity', parseInt(formData.capacity));
+        submitData.append('status', formData.status);
+        submitData.append('image', imageFile);
+
+        if (editingSession) {
+          response = await api.patch(`/sessions/${editingSession.id}/`, submitData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+          });
+        } else {
+          response = await api.post('/sessions/', submitData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+          });
+        }
+      } else {
+        // Use JSON for URL or no image
+        const jsonData = {
+          title: formData.title,
+          description: formData.description,
+          duration_minutes: parseInt(formData.duration_minutes),
+          price: parseFloat(formData.price),
+          capacity: parseInt(formData.capacity),
+          status: formData.status,
+        };
+        
+        if (formData.image_url_external) {
+          jsonData.image_url_external = formData.image_url_external;
+        }
+
+        if (editingSession) {
+          response = await api.patch(`/sessions/${editingSession.id}/`, jsonData);
+        } else {
+          response = await api.post('/sessions/', jsonData);
+        }
       }
 
-      if (editingSession) {
-        await api.patch(`/sessions/${editingSession.id}/`, payload);
-        alert('Session updated successfully!');
-      } else {
-        await api.post('/sessions/', payload);
-        alert('Session created successfully!');
-      }
+      alert(editingSession ? 'Session updated successfully!' : 'Session created successfully!');
       setShowForm(false);
       setEditingSession(null);
       resetForm();
@@ -89,9 +116,13 @@ function CreatorDashboard() {
       duration_minutes: session.duration_minutes || '',
       price: session.price || '',
       capacity: session.capacity || '',
-      image: session.image || '',
       status: session.status || 'published',
+      image_url_external: session.image_url_external || '',
     });
+    // Set preview from existing image URL
+    setImagePreview(session.image_url || session.image || null);
+    setImageFile(null);
+    setImageInputType(session.image_url_external ? 'url' : 'upload');
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -115,13 +146,34 @@ function CreatorDashboard() {
       duration_minutes: '',
       price: '',
       capacity: '',
-      image: '',
       status: 'published',
+      image_url_external: '',
     });
+    setImageFile(null);
+    setImagePreview(null);
+    setImageInputType('url');
   };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file');
+        return;
+      }
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Image must be less than 5MB');
+        return;
+      }
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
   };
 
   // Toggle session status between published and draft
@@ -276,16 +328,90 @@ function CreatorDashboard() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Image URL (optional)
+                  Session Image (optional)
                 </label>
-                <input
-                  type="url"
-                  name="image"
-                  placeholder="https://example.com/image.jpg"
-                  value={formData.image}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
+                
+                {/* Toggle between URL and Upload */}
+                <div className="flex gap-4 mb-3">
+                  <button
+                    type="button"
+                    onClick={() => setImageInputType('url')}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      imageInputType === 'url'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    🔗 Image URL
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setImageInputType('upload')}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      imageInputType === 'upload'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    📤 Upload File
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  {imageInputType === 'url' ? (
+                    <>
+                      <input
+                        type="url"
+                        name="image_url_external"
+                        value={formData.image_url_external}
+                        onChange={handleChange}
+                        placeholder="https://example.com/image.jpg"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                      {formData.image_url_external && (
+                        <div className="relative w-40 h-40">
+                          <img
+                            src={formData.image_url_external}
+                            alt="Preview"
+                            className="w-full h-full object-cover rounded-lg border"
+                            onError={(e) => e.target.style.display = 'none'}
+                          />
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                      />
+                      {imagePreview && (
+                        <div className="relative w-40 h-40">
+                          <img
+                            src={imagePreview}
+                            alt="Preview"
+                            className="w-full h-full object-cover rounded-lg border"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setImageFile(null);
+                              setImagePreview(null);
+                            }}
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      )}
+                      <p className="text-xs text-gray-500">
+                        Supported formats: JPG, PNG, WebP. Max size: 5MB
+                      </p>
+                    </>
+                  )}
+                </div>
               </div>
 
               <button
@@ -338,9 +464,9 @@ function CreatorDashboard() {
                   className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
                 >
                   <div className="h-40 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
-                    {session.image ? (
+                    {(session.image_url || session.image) ? (
                       <img
-                        src={session.image}
+                        src={session.image_url || session.image}
                         alt={session.title}
                         className="w-full h-full object-cover"
                       />

@@ -19,6 +19,7 @@ A full-stack web application for booking and managing educational sessions. User
 ### Infrastructure
 - **Docker & Docker Compose** - Containerization
 - **Nginx** - Reverse proxy
+- **MinIO** - S3-compatible object storage for image uploads
 
 ## Features
 
@@ -568,3 +569,135 @@ done
 ![Throttling Demo](docs/images/throttling-demo.png)
 
 *After 5 login attempts, the API blocks further requests for that IP.*
+
+---
+
+## Bonus: MinIO File Storage
+
+Session images are stored using MinIO, an S3-compatible object storage service. This allows creators to upload images directly rather than relying on external URLs.
+
+### Architecture
+
+```
+┌─────────────┐      ┌─────────────┐      ┌─────────────┐
+│   Frontend  │─────▶│   Backend   │─────▶│    MinIO    │
+│  (Upload)   │      │  (Django)   │      │  (Storage)  │
+└─────────────┘      └─────────────┘      └─────────────┘
+                            │
+                     django-storages
+                        + boto3
+```
+
+### Features
+
+| Feature | Description |
+|---------|-------------|
+| **Dual Input** | Creators can upload files OR paste external URLs |
+| **S3 Compatible** | Uses standard S3 API via django-storages |
+| **Public Access** | Images are publicly accessible (no signed URLs) |
+| **File Validation** | Frontend validates type (images only) and size (max 5MB) |
+
+### Configuration
+
+**docker-compose.yml** - MinIO service:
+```yaml
+minio:
+  image: minio/minio
+  ports:
+    - "9000:9000"   # S3 API
+    - "9001:9001"   # Web Console
+  environment:
+    MINIO_ROOT_USER: minioadmin
+    MINIO_ROOT_PASSWORD: minioadmin123
+  command: server /data --console-address ":9001"
+  volumes:
+    - minio_data:/data
+```
+
+**settings.py** - Django storage config:
+```python
+# MinIO/S3 Settings
+DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+
+AWS_ACCESS_KEY_ID = "minioadmin"
+AWS_SECRET_ACCESS_KEY = "minioadmin123"
+AWS_STORAGE_BUCKET_NAME = "sessions-media"
+AWS_S3_ENDPOINT_URL = "http://minio:9000"  # Internal Docker URL
+AWS_QUERYSTRING_AUTH = False  # Public access without signed URLs
+```
+
+**Session model** - ImageField:
+```python
+class Session(models.Model):
+    image = models.ImageField(upload_to='sessions/', blank=True, null=True)
+    image_url_external = models.URLField(blank=True, null=True)  # Alternative: external URL
+```
+
+**Serializer** - Returns correct public URL:
+```python
+def get_image_url(self, obj):
+    if obj.image:
+        url = obj.image.url
+        # Convert internal Docker URL to public localhost URL
+        if 'minio:9000' in url:
+            url = url.replace('http://minio:9000', 'http://localhost:9000')
+        return url
+    return obj.image_url_external  # Fallback to external URL
+```
+
+### Access Points
+
+| Service | URL | Credentials |
+|---------|-----|-------------|
+| MinIO API | http://localhost:9000 | - |
+| MinIO Console | http://localhost:9001 | minioadmin / minioadmin123 |
+| Uploaded Images | http://localhost:9000/sessions-media/... | Public |
+
+### Setup Commands
+
+After starting containers, create the bucket:
+
+```bash
+# Create MinIO bucket
+docker-compose exec minio mc alias set local http://localhost:9000 minioadmin minioadmin123
+docker-compose exec minio mc mb local/sessions-media --ignore-existing
+
+# Set bucket to public
+docker-compose exec minio mc anonymous set public local/sessions-media
+```
+
+### Testing Image Upload
+
+1. Login as a Creator at http://localhost:3000/login
+2. Go to Creator Dashboard → Create New Session
+3. Choose image input method:
+   - **🔗 Image URL**: Paste any external image URL
+   - **📤 Upload File**: Select an image from your computer
+4. Create the session
+5. View the session on the homepage - image should display
+
+### Verify Upload via API
+
+```bash
+# List sessions and check image_url field
+curl -s http://localhost:8000/api/sessions/ | python3 -m json.tool | grep "image_url"
+
+# Expected output for uploaded image:
+# "image_url": "http://localhost:9000/sessions-media/sessions/<uuid>/filename.jpg"
+```
+
+### View Files in MinIO Console
+
+1. Open http://localhost:9001
+2. Login: `minioadmin` / `minioadmin123`
+3. Navigate to `sessions-media` bucket
+4. Browse uploaded session images
+
+### Dependencies
+
+```
+# backend/requirements.txt
+django-storages==1.14.2
+boto3==1.34.0
+Pillow==10.2.0
+```

@@ -6,7 +6,7 @@ from rest_framework.throttling import UserRateThrottle
 
 
 class SessionThrottle(UserRateThrottle):
-    rate = "50/hour"
+    rate = "500/hour"
 
 class IsCreatorOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):

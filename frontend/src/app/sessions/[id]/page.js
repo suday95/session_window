@@ -313,9 +313,9 @@ export default function SessionDetail() {
         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
           {/* Session Image */}
           <div className="h-96 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center relative">
-            {session.image ? (
+            {(session.image_url || session.image) ? (
               <img
-                src={session.image}
+                src={session.image_url || session.image}
                 alt={session.title}
                 className="w-full h-full object-cover"
               />

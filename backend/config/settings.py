@@ -19,6 +19,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
     'corsheaders',
+    'storages',
     'users',
     'session_catalog',
     'bookings',
@@ -73,8 +74,8 @@ REST_FRAMEWORK = {
         "rest_framework.throttling.AnonRateThrottle",
     ],
     "DEFAULT_THROTTLE_RATES": {
-        "user": "1000/hour",
-        "anon": "100/hour",
+        "user": "7000/hour",
+        "anon": "1000/hour",
     }
 }
 
@@ -180,3 +181,17 @@ SOCIALACCOUNT_PROVIDERS = {
         ],
     }
 }
+
+
+#MINIO/S3 Settings
+DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+
+AWS_ACCESS_KEY_ID = "minioadmin"
+AWS_SECRET_ACCESS_KEY = "minioadmin123"
+AWS_STORAGE_BUCKET_NAME = "sessions-media"
+AWS_S3_ENDPOINT_URL = "http://minio:9000"  # Internal Docker URL for uploads
+AWS_S3_CUSTOM_DOMAIN = "localhost:9000/sessions-media"  # Public URL for browser access
+AWS_S3_ADDRESSING_STYLE = "path"
+AWS_S3_FILE_OVERWRITE = False
+AWS_DEFAULT_ACL = "public-read"
+AWS_QUERYSTRING_AUTH = False  # Allows direct URL access without signed URLs
