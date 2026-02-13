@@ -275,7 +275,3 @@ docker-compose up --build
 # Rebuild frontend
 docker-compose up -d --build frontend
 ```
-
-## License
-
-MIT
